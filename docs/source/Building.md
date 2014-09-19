@@ -18,9 +18,11 @@ you to build project/make files for any platform. For details on `cmake`, see
 <http://www.cmake.org>. In brief, depending on your platform, use one of
 e.g.:
 
-    cmake -G "Unix Makefiles"
-    cmake -G "Visual Studio 10"
-    cmake -G "Xcode"
+```sh
+cmake -G "Unix Makefiles"
+cmake -G "Visual Studio 10"
+cmake -G "Xcode"
+```
 
 Then, build as normal for your platform. This should result in a `flatc`
 executable, essential for the next steps.
@@ -39,7 +41,7 @@ Building should also produce two sample executables, `sample_binary` and
 FlatBuffers project can be included in exisiting CMake project and files can be
 then generated during build using compile_flatbuffers function e.g.:
 
-```
+```cmake
 set(FLATBUFFERS_BUILD_TESTS OFF)
 set(FLATBUFFERS_INSTALL OFF)
 add_subdirectory("3rdparty/flatbuffers")
