@@ -40,13 +40,13 @@ FlatBuffers project can be included in exisiting CMake project and files can be
 then generated during build using compile_flatbuffers function e.g.:
 
 ```
-    set(FLATBUFFERS_BUILD_TESTS OFF)
-    set(FLATBUFFERS_INSTALL OFF)
-    add_subdirectory("3rdparty/flatbuffers")
-    include_directories("${PROJECT_SOURCE_DIR}/3rdparty/flatbuffers/include")
+set(FLATBUFFERS_BUILD_TESTS OFF)
+set(FLATBUFFERS_INSTALL OFF)
+add_subdirectory("3rdparty/flatbuffers")
+include_directories("${PROJECT_SOURCE_DIR}/3rdparty/flatbuffers/include")
     
-    compile_flatbuffers(schema/monster.fbs)
-    add_executable(monster main.cpp monster_generated.h)
+compile_flatbuffers(schema/monster.fbs)
+add_executable(monster main.cpp monster_generated.h)
 ```
 
 ## Android
