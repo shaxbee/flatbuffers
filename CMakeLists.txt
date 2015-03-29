@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(FlatBuffers)
+set(FLATBUFFERS_VERSION "1.0.3")
 
 # NOTE: Code coverage only works on Linux & OSX.
 option(FLATBUFFERS_CODE_COVERAGE "Enable the code coverage build option." OFF)
@@ -93,20 +94,10 @@ include_directories(include)
 
 if(FLATBUFFERS_BUILD_FLATC)
   add_executable(flatc ${FlatBuffers_Compiler_SRCS})
-endif()
-
-if(FLATBUFFERS_BUILD_FLATC)
   add_executable(flathash ${FlatHash_SRCS})
 endif()
 
-function(compile_flatbuffers_schema_to_cpp SRC_FBS)
-  get_filename_component(SRC_FBS_DIR ${SRC_FBS} PATH)
-  string(REGEX REPLACE "\\.fbs$" "_generated.h" GEN_HEADER ${SRC_FBS})
-  add_custom_command(
-    OUTPUT ${GEN_HEADER}
-    COMMAND flatc -c -o "${SRC_FBS_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FBS}"
-    DEPENDS flatc)
-endfunction()
+include(CMake/flatbuffersTools.cmake)
 
 if(FLATBUFFERS_BUILD_TESTS)
   compile_flatbuffers_schema_to_cpp(tests/monster_test.fbs)
@@ -121,8 +112,43 @@ endif()
 
 if(FLATBUFFERS_INSTALL)
   install(DIRECTORY include/flatbuffers DESTINATION include)
-  if(FLATBUFFERS_BUILD_FLATC)
-    install(TARGETS flatc DESTINATION bin)
+  if(TARGET flatc)
+    install(TARGETS flatc EXPORT flatbuffersTargets DESTINATION bin)
+  endif()
+
+  if(NOT CMAKE_VERSION VERSION_LESS "2.8.12")
+    include(CMakePackageConfigHelpers)
+    set(FLATBUFFERS_INSTALL_CONFIG_DIR "lib/cmake/flatbuffers")
+
+    write_basic_package_version_file(
+      "${CMAKE_CURRENT_BINARY_DIR}/CMake/flatbuffersVersion.cmake"
+      VERSION ${FLATBUFFERS_VERSION}
+      COMPATIBILITY AnyNewerVersion
+    )
+
+    add_library(flatbuffers INTERFACE)
+    target_include_directories(flatbuffers INTERFACE
+      $<INSTALL_INTERFACE:include>)
+
+    install(TARGETS flatbuffers EXPORT flatbuffersTargets)
+    
+    export(
+      EXPORT flatbuffersTargets
+      FILE "${CMAKE_CURRENT_BINARY_DIR}/CMake/flatbuffersTargets.cmake"
+    )
+
+    install(
+      EXPORT flatbuffersTargets FILE flatbuffersTargets.cmake
+      DESTINATION ${FLATBUFFERS_INSTALL_CONFIG_DIR}
+    )
+
+    install(
+      FILES
+        CMake/flatbuffersConfig.cmake
+        CMake/flatbuffersTools.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/CMake/flatbuffersVersion.cmake
+      DESTINATION ${FLATBUFFERS_INSTALL_CONFIG_DIR}
+    )
   endif()
 endif()
 
